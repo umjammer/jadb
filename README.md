@@ -1,4 +1,11 @@
-# JADB #
+[![jitpack badge](https://jitpack.io/v/umjammer/jadb.svg)](https://jitpack.io/#umjammer/jadb)
+[![Java CI](https://github.com/umjammer/jadb/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/jadb/actions/workflows/maven.yml)
+[![CodeQL](https://github.com/umjammer/jadb/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/jadb/actions/workflows/codeql-analysis.yml)
+![Java](https://img.shields.io/badge/Java-8-b07219)
+[![Parent](https://img.shields.io/badge/Parent-vavi--nio--file--adb-pink)](https://github.com/umjammer/vavi-nio-file-adb)
+
+# JADB
+
 ADB client implemented in pure Java.
 
 The Android Debug Bridge (ADB) is a client-server architecture used to communicate with Android devices (install APKs, debug apps, etc).
@@ -7,13 +14,10 @@ The Android SDK Tools are available for the major platforms (Mac, Windows & Linu
 
 This projects aims at providing an up to date implementation of the ADB protocol.
 
-![Build Status](https://github.com/vidstige/jadb/actions/workflows/maven.yml/badge.svg)
-[![jitpack badge](https://jitpack.io/v/vidstige/jadb.svg)](https://jitpack.io/#vidstige/jadb)
-[![codecov](https://codecov.io/gh/vidstige/jadb/branch/master/graph/badge.svg)](https://codecov.io/gh/vidstige/jadb)
-[![first timers friendly](http://img.shields.io/badge/first--timers--only-friendly-green.svg?style=flat&colorB=FF69B4)](http://www.firsttimersonly.com/)
+[original](https://github.com/vidstige/jadb)
 
+## Example
 
-## Example ##
 Usage cannot be simpler. Just create a `JadbConnection` and off you go.
 
 ```java
@@ -68,9 +72,9 @@ project name and tag ignoring actual values from pom.xml. So you need to write:
  
 ```
 <dependency>
-    <groupId>com.github.vidstige</groupId>
+    <groupId>com.github.umjammer</groupId>
     <artifactId>jadb</artifactId>
-    <version>v1.2.1</version>
+    <version>1.2.2v</version>
 </dependency>
 ```
 
