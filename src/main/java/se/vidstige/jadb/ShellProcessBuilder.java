@@ -177,14 +177,11 @@ public class ShellProcessBuilder {
             final ShellProtocolTransport shellProtocolTransport = transport.startShellProtocol(this.command);
             OutputStream inOs = shellProtocolTransport.getOutputStream();
 
-            FutureTask<Integer> transportTask = new FutureTask<>(new Callable<Integer>() {
-                @Override
-                public Integer call() throws Exception {
-                    try (ShellProtocolTransport unused1 = shellProtocolTransport;
-                         OutputStream unused2 = outOs;
-                         OutputStream unused3 = errOs) {
-                        return shellProtocolTransport.demuxOutput(outOs, errOs);
-                    }
+            FutureTask<Integer> transportTask = new FutureTask<>(() -> {
+                try (ShellProtocolTransport unused1 = shellProtocolTransport;
+                     OutputStream unused2 = outOs;
+                     OutputStream unused3 = errOs) {
+                    return shellProtocolTransport.demuxOutput(outOs, errOs);
                 }
             });
 

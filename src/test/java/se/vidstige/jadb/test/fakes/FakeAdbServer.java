@@ -101,7 +101,7 @@ public class FakeAdbServer implements AdbResponder {
 
     @Override
     public List<AdbDeviceResponder> getDevices() {
-        return new ArrayList<AdbDeviceResponder>(devices);
+        return new ArrayList<>(devices);
     }
 
     private static class DeviceResponder implements AdbDeviceResponder {

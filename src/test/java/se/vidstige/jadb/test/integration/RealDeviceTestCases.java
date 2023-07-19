@@ -147,13 +147,8 @@ public class RealDeviceTestCases {
         System.out.println(stderr.get());
     }
 
-    private Thread gobbler(final InputStream stream, final AtomicReference<String> out) {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                out.set(new Scanner(stream).useDelimiter("\\A").next());
-            }
-        });
+    private Thread gobbler(InputStream stream, final AtomicReference<String> out) {
+        return new Thread(() -> out.set(new Scanner(stream).useDelimiter("\\A").next()));
     }
 
     @Test
@@ -193,14 +188,14 @@ public class RealDeviceTestCases {
     @Test
     public void testScreenshot() throws Exception {
         JadbDevice any = jadb.getAnyDevice();
-        try (FileOutputStream outputStream = new FileOutputStream(temporaryFolder.newFile("screenshot.png"))) {
+        try (OutputStream outputStream = Files.newOutputStream(temporaryFolder.resolve("screenshot.png"))) {
             InputStream stdout = any.executeShell("screencap", "-p");
             Stream.copy(stdout, outputStream);
         }
     }
 
     /**
-     * This test requires emulator running on non-standard tcp port - this may be achieve by executing such command:
+     * This test requires emulator running on non-standard tcp port - this may be achieved by executing such command:
      * ${ANDROID_HOME}/emulator -verbose -avd ${NAME} -ports 10000,10001
      *
      * @throws IOException
