@@ -217,6 +217,23 @@ public class JadbDevice {
         }
     }
 
+    public OutputStream push(long lastModified, int mode, RemoteFile remote) throws IOException {
+        Transport transport = getTransport();
+        SyncTransport sync = transport.startSync();
+        sync.send("SEND", remote.getPath() + "," + mode);
+
+        return sync.sendStream(() -> {
+            try {
+                sync.sendStatus("DONE", (int) lastModified);
+                sync.verifyStatus();
+
+                transport.close();
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+    }
+
     public void pull(RemoteFile remote, OutputStream destination) throws IOException {
         try (Transport transport = getTransport()) {
             SyncTransport sync = transport.startSync();
@@ -230,6 +247,20 @@ public class JadbDevice {
         try (FileOutputStream fileStream = new FileOutputStream(local)) {
             pull(remote, fileStream);
         }
+    }
+
+    public InputStream pull(RemoteFile remote) throws IOException {
+        Transport transport = getTransport();
+        SyncTransport sync = transport.startSync();
+        sync.send("RECV", remote.getPath());
+
+        return sync.readChunks(() -> {
+            try {
+                transport.close();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 
     private void send(Transport transport, String command) throws IOException {

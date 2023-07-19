@@ -1,5 +1,9 @@
 package se.vidstige.jadb;
 
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
+
+
 /**
  * Created by vidstige on 2014-03-20
  */
@@ -12,6 +16,10 @@ public class RemoteFile {
     public int getSize() { throw new UnsupportedOperationException(); }
     public int getLastModified() { throw new UnsupportedOperationException(); }
     public boolean isDirectory() { throw new UnsupportedOperationException(); }
+
+    public int getMode() { throw new UnsupportedOperationException(); }
+
+    public Set<PosixFilePermission> permissions() { throw new UnsupportedOperationException(); }
 
     public String getPath() { return path;}
 

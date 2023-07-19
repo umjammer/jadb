@@ -2,6 +2,9 @@ package se.vidstige.jadb;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
+
 
 /**
  * Created by vidstige on 2014-03-19.
@@ -104,6 +107,26 @@ public class SyncTransport {
         }
     }
 
+    public OutputStream sendStream(Runnable onClose) {
+        return new OutputStream() {
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                sendChunk(b, off, len);
+            }
+
+            @Override
+            public void write(int b) throws IOException {
+                byte[] buf = new byte[] { (byte) b };
+                write(buf, 0, 1);
+            }
+
+            @Override
+            public void close() throws IOException {
+                onClose.run();
+            }
+        };
+    }
+
     public void readChunksTo(OutputStream stream) throws IOException, JadbException {
         byte[] buffer = new byte[1024 * 64];
         int n = readChunk(buffer);
@@ -111,5 +134,71 @@ public class SyncTransport {
             stream.write(buffer, 0, n);
             n = readChunk(buffer);
         }
+    }
+
+    private int readChunk(Deque<Byte> deque) throws IOException, JadbException {
+        String id = readString(4);
+        int n = readInt();
+        if ("FAIL".equals(id)) {
+            throw new JadbException(readString(n));
+        }
+        if (!"DATA".equals(id)) return -1;
+        byte[] buffer = new byte[n];
+        input.readFully(buffer, 0, n);
+        for (int i = 0; i < n; i++) {
+            deque.offer(buffer[i]);
+        }
+        return n;
+    }
+
+    public InputStream readChunks(Runnable onClose) {
+        return new InputStream() {
+            Deque<Byte> deque = new ConcurrentLinkedDeque<>();
+            boolean eof;
+            void readInternal() throws IOException {
+                try {
+                    if (!eof) {
+                        int n = readChunk(deque);
+                        if (n == -1) {
+                            eof = true;
+                        }
+                    }
+                } catch (JadbException e) {
+                    throw new IOException(e);
+                }
+            }
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                readInternal();
+                if (deque.size() == 0) {
+                    return -1;
+                }
+                int i;
+                for (i = 0; i < Math.min(len, deque.size()); i++) {
+                    if (deque.peek() == null) {
+                        break;
+                    }
+                    b[off + i] = deque.poll();
+                }
+                return i;
+            }
+
+            @Override
+            public int read() throws IOException {
+                readInternal();
+                if (deque.size() == 0) {
+                    return -1;
+                }
+                if (deque.peek() == null) {
+                    return -1;
+                }
+                return deque.poll();
+            }
+
+            @Override
+            public void close() throws IOException {
+                onClose.run();
+            }
+        };
     }
 }

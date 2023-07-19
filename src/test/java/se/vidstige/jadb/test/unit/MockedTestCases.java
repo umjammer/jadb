@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -84,13 +86,23 @@ public class MockedTestCases {
     }
 
     @Test
+    public void testPushFile2() throws Exception {
+        server.add("serial-123");
+        server.expectPush("serial-123", new RemoteFile("/remote/path/abc.txt")).withContent("abc");
+        JadbDevice device = connection.getDevices().get(0);
+        OutputStream os = device.push(parseDate("1981-08-25 13:37"), 0666, new RemoteFile("/remote/path/abc.txt"));
+        os.write("abc".getBytes(StandardCharsets.UTF_8));
+        os.close();
+    }
+
+    @Test
     public void testPushToInvalidPath() {
         assertThrows(JadbException.class, () -> {
-        server.add("serial-123");
-        server.expectPush("serial-123", new RemoteFile("/remote/path/abc.txt")).failWith("No such directory");
-        JadbDevice device = connection.getDevices().get(0);
-        ByteArrayInputStream fileContents = new ByteArrayInputStream("abc".getBytes(StandardCharsets.UTF_8));
-        device.push(fileContents, parseDate("1981-08-25 13:37"), 0666, new RemoteFile("/remote/path/abc.txt"));
+            server.add("serial-123");
+            server.expectPush("serial-123", new RemoteFile("/remote/path/abc.txt")).failWith("No such directory");
+            JadbDevice device = connection.getDevices().get(0);
+            ByteArrayInputStream fileContents = new ByteArrayInputStream("abc".getBytes(StandardCharsets.UTF_8));
+            device.push(fileContents, parseDate("1981-08-25 13:37"), 0666, new RemoteFile("/remote/path/abc.txt"));
         });
     }
 
@@ -101,6 +113,22 @@ public class MockedTestCases {
         JadbDevice device = connection.getDevices().get(0);
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         device.pull(new RemoteFile("/remote/path/abc.txt"), buffer);
+        assertArrayEquals("foobar".getBytes(StandardCharsets.UTF_8), buffer.toByteArray());
+    }
+
+    @Test
+    public void testPullFile2() throws Exception {
+        server.add("serial-123");
+        server.expectPull("serial-123", new RemoteFile("/remote/path/abc.txt")).withContent("foobar");
+        JadbDevice device = connection.getDevices().get(0);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        InputStream is = device.pull(new RemoteFile("/remote/path/abc.txt"));
+        while (true) {
+            int r = is.read();
+            if (r == -1) break;
+            buffer.write(r);
+        }
+        is.close(); // necessary
         assertArrayEquals("foobar".getBytes(StandardCharsets.UTF_8), buffer.toByteArray());
     }
 
