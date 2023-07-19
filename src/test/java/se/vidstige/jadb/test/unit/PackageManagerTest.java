@@ -1,18 +1,18 @@
 package se.vidstige.jadb.test.unit;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import se.vidstige.jadb.JadbConnection;
 import se.vidstige.jadb.JadbDevice;
 import se.vidstige.jadb.managers.Package;
 import se.vidstige.jadb.managers.PackageManager;
 import se.vidstige.jadb.test.fakes.FakeAdbServer;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PackageManagerTest {
     private static final String DEVICE_SERIAL = "serial-123";
@@ -20,7 +20,7 @@ public class PackageManagerTest {
     private FakeAdbServer server;
     private JadbDevice device;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         server = new FakeAdbServer(15037);
         server.start();
@@ -28,7 +28,7 @@ public class PackageManagerTest {
         device = new JadbConnection("localhost", 15037).getDevices().get(0);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         server.stop();
         server.verifyExpectations();
@@ -36,7 +36,7 @@ public class PackageManagerTest {
 
     @Test
     public void testGetPackagesWithSeveralPackages() throws Exception {
-        //Arrange
+        // Arrange
         List<Package> expected = new ArrayList<>();
         expected.add(new Package("/system/priv-app/Contacts.apk-com.android.contacts"));
         expected.add(new Package("/system/priv-app/Teleservice.apk-com.android.phone"));
@@ -46,16 +46,16 @@ public class PackageManagerTest {
 
         server.expectShell(DEVICE_SERIAL, "pm 'list' 'packages'").returns(response);
 
-        //Act
+        // Act
         List<Package> actual = new PackageManager(device).getPackages();
 
-        //Assert
+        // Assert
         assertEquals(expected, actual);
     }
 
     @Test
     public void testGetPackagesMalformedIgnoredString() throws Exception {
-        //Arrange
+        // Arrange
         List<Package> expected = new ArrayList<>();
         expected.add(new Package("/system/priv-app/Contacts.apk-com.android.contacts"));
         expected.add(new Package("/system/priv-app/Teleservice.apk-com.android.phone"));
@@ -66,25 +66,25 @@ public class PackageManagerTest {
 
         server.expectShell(DEVICE_SERIAL, "pm 'list' 'packages'").returns(response);
 
-        //Act
+        // Act
         List<Package> actual = new PackageManager(device).getPackages();
 
-        //Assert
+        // Assert
         assertEquals(expected, actual);
     }
 
     @Test
     public void testGetPackagesWithNoPackages() throws Exception {
-        //Arrange
+        // Arrange
         List<Package> expected = new ArrayList<>();
         String response = "";
 
         server.expectShell(DEVICE_SERIAL, "pm 'list' 'packages'").returns(response);
 
-        //Act
+        // Act
         List<Package> actual = new PackageManager(device).getPackages();
 
-        //Assert
+        // Assert
         assertEquals(expected, actual);
     }
 }

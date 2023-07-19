@@ -1,17 +1,17 @@
 package se.vidstige.jadb.test.unit;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import se.vidstige.jadb.JadbConnection;
 import se.vidstige.jadb.JadbDevice;
 import se.vidstige.jadb.managers.PropertyManager;
 import se.vidstige.jadb.test.fakes.FakeAdbServer;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PropertyManagerTest {
     private static final String DEVICE_SERIAL = "serial-123";
@@ -19,7 +19,7 @@ public class PropertyManagerTest {
     private FakeAdbServer server;
     private JadbDevice device;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         server = new FakeAdbServer(15037);
         server.start();
@@ -27,7 +27,7 @@ public class PropertyManagerTest {
         device = new JadbConnection("localhost", 15037).getDevices().get(0);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         server.stop();
         server.verifyExpectations();

@@ -2,23 +2,24 @@ package se.vidstige.jadb.test.integration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import se.vidstige.jadb.AdbServerLauncher;
 import se.vidstige.jadb.ConnectionToRemoteDeviceException;
 import se.vidstige.jadb.JadbConnection;
@@ -29,16 +30,22 @@ import se.vidstige.jadb.ShellProcess;
 import se.vidstige.jadb.Stream;
 import se.vidstige.jadb.Subprocess;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.abort;
+
 
 public class RealDeviceTestCases {
 
     private JadbConnection jadb;
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder(); //Must be public
+    @TempDir
+    public Path temporaryFolder;
 
-    @BeforeClass
+    @BeforeAll
     public static void tryToStartAdbServer() {
         try {
             new AdbServerLauncher(new Subprocess(), System.getenv()).launch();
@@ -47,13 +54,13 @@ public class RealDeviceTestCases {
         }
     }
 
-    @Before
-    public void connect() throws IOException {
+    @BeforeEach
+    public void connect() {
         try {
             jadb = new JadbConnection();
             jadb.getHostVersion();
         } catch (Exception e) {
-            org.junit.Assume.assumeNoException(e);
+            abort(e.getMessage());
         }
     }
 
@@ -65,8 +72,8 @@ public class RealDeviceTestCases {
     @Test
     public void testGetDevices() throws Exception {
         List<JadbDevice> actual = jadb.getDevices();
-        Assert.assertNotNull(actual);
-        //Assert.assertEquals("emulator-5554", actual.get(0).getSerial());
+        assertNotNull(actual);
+        //assertEquals("emulator-5554", actual.get(0).getSerial());
     }
 
     @Test
@@ -85,28 +92,32 @@ public class RealDeviceTestCases {
     public void testPushFile() throws Exception {
         JadbDevice any = jadb.getAnyDevice();
         any.push(new File("README.md"), new RemoteFile("/sdcard/README.md"));
-        //second read on the same device
+        // second read on the same device
         any.push(new File("README.md"), new RemoteFile("/sdcard/README.md"));
     }
 
-    @Test(expected = JadbException.class)
-    public void testPushFileToInvalidPath() throws Exception {
-        JadbDevice any = jadb.getAnyDevice();
-        any.push(new File("README.md"), new RemoteFile("/no/such/directory/README.md"));
+    @Test
+    public void testPushFileToInvalidPath() {
+        assertThrows(JadbException.class, () -> {
+            JadbDevice any = jadb.getAnyDevice();
+            any.push(new File("README.md"), new RemoteFile("/no/such/directory/README.md"));
+        });
     }
 
     @Test
     public void testPullFile() throws Exception {
         JadbDevice any = jadb.getAnyDevice();
-        any.pull(new RemoteFile("/sdcard/README.md"), temporaryFolder.newFile("foobar.md"));
-        //second read on the same device
-        any.pull(new RemoteFile("/sdcard/README.md"), temporaryFolder.newFile("foobar.md"));
+        any.pull(new RemoteFile("/sdcard/README.md"), temporaryFolder.resolve("foobar.md").toFile());
+        // second read on the same device
+        any.pull(new RemoteFile("/sdcard/README.md"), temporaryFolder.resolve("foobar.md").toFile());
     }
 
-    @Test(expected = JadbException.class)
-    public void testPullInvalidFile() throws Exception {
-        JadbDevice any = jadb.getAnyDevice();
-        any.pull(new RemoteFile("/file/does/not/exist"), temporaryFolder.newFile("xyz"));
+    @Test
+    public void testPullInvalidFile() {
+        assertThrows(JadbException.class, () -> {
+            JadbDevice any = jadb.getAnyDevice();
+            any.pull(new RemoteFile("/file/does/not/exist"), temporaryFolder.resolve("xyz").toFile());
+        });
     }
 
     @SuppressWarnings("deprecation")

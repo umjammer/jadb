@@ -1,15 +1,5 @@
 package se.vidstige.jadb.test.unit;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import se.vidstige.jadb.JadbConnection;
-import se.vidstige.jadb.JadbDevice;
-import se.vidstige.jadb.JadbException;
-import se.vidstige.jadb.RemoteFile;
-import se.vidstige.jadb.test.fakes.FakeAdbServer;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -21,21 +11,33 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Scanner;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import se.vidstige.jadb.JadbConnection;
+import se.vidstige.jadb.JadbDevice;
+import se.vidstige.jadb.JadbException;
+import se.vidstige.jadb.RemoteFile;
+import se.vidstige.jadb.test.fakes.FakeAdbServer;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MockedTestCases {
 
     private FakeAdbServer server;
     private JadbConnection connection;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         server = new FakeAdbServer(15037);
         server.start();
         connection = new JadbConnection("localhost", 15037);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         server.stop();
         server.verifyExpectations();
@@ -81,13 +83,15 @@ public class MockedTestCases {
         device.push(fileContents, parseDate("1981-08-25 13:37"), 0666, new RemoteFile("/remote/path/abc.txt"));
     }
 
-    @Test(expected = JadbException.class)
-    public void testPushToInvalidPath() throws Exception {
+    @Test
+    public void testPushToInvalidPath() {
+        assertThrows(JadbException.class, () -> {
         server.add("serial-123");
         server.expectPush("serial-123", new RemoteFile("/remote/path/abc.txt")).failWith("No such directory");
         JadbDevice device = connection.getDevices().get(0);
         ByteArrayInputStream fileContents = new ByteArrayInputStream("abc".getBytes(StandardCharsets.UTF_8));
         device.push(fileContents, parseDate("1981-08-25 13:37"), 0666, new RemoteFile("/remote/path/abc.txt"));
+        });
     }
 
     @Test

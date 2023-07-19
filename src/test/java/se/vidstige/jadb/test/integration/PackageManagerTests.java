@@ -1,33 +1,38 @@
 package se.vidstige.jadb.test.integration;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import se.vidstige.jadb.JadbConnection;
-import se.vidstige.jadb.managers.Package;
-import se.vidstige.jadb.managers.PackageManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import se.vidstige.jadb.JadbConnection;
+import se.vidstige.jadb.managers.Package;
+import se.vidstige.jadb.managers.PackageManager;
+
+import static org.junit.jupiter.api.Assumptions.abort;
+
+
 public class PackageManagerTests {
+
     private static JadbConnection jadb;
     private PackageManager pm;
-    private final File miniApk = new File("test/data/Tiniest Smallest APK ever.apk");
+    private final File miniApk = new File("src/test/resources/data/Tiniest Smallest APK ever.apk");
 
-    @BeforeClass
-    public static void connect() throws IOException {
+    @BeforeAll
+    public static void connect() {
         try {
             jadb = new JadbConnection();
             jadb.getHostVersion();
         } catch (Exception e) {
-            org.junit.Assume.assumeNoException(e);
+e.printStackTrace();
+            abort(e.getMessage());
         }
     }
 
-    @Before
+    @BeforeEach
     public void createPackageManager()
     {
         pm = new PackageManager(jadb.getAnyDevice());

@@ -16,6 +16,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 /**
  * Created by vidstige on 2014-03-20.
  */
@@ -187,16 +191,16 @@ public class FakeAdbServer implements AdbResponder {
 
         public void verifyExpectations() {
             for (FileExpectation expectation : fileExpectations) {
-                org.junit.Assert.fail(expectation.toString());
+                fail(expectation.toString());
             }
             for (ShellExpectation expectation : shellExpectations) {
-                org.junit.Assert.fail(expectation.toString());
+                fail(expectation.toString());
             }
             for (ListExpectation expectation : listExpectations) {
-                org.junit.Assert.fail(expectation.toString());
+                fail(expectation.toString());
             }
             for (int expectation : tcpipExpectations) {
-                org.junit.Assert.fail("Expected tcp/ip on" + expectation);
+                fail("Expected tcp/ip on" + expectation);
             }
         }
 
@@ -235,7 +239,7 @@ public class FakeAdbServer implements AdbResponder {
             }
 
             public void verifyContent(byte[] content) {
-                org.junit.Assert.assertArrayEquals(this.content, content);
+                assertArrayEquals(this.content, content);
             }
 
             public void returnFile(ByteArrayOutputStream buffer) throws IOException {
