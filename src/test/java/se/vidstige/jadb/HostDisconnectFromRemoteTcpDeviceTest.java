@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 public class HostDisconnectFromRemoteTcpDeviceTest {
 
     @Test
-    public void testNormalConnection() throws ConnectionToRemoteDeviceException, IOException, JadbException {
+    public void testNormalConnection() throws IOException {
         // Prepare
         Transport transport = mock(Transport.class);
         when(transport.readString()).thenReturn("disconnected host:1");
@@ -30,8 +30,8 @@ public class HostDisconnectFromRemoteTcpDeviceTest {
         assertEquals(inetSocketAddress, resultInetSocketAddress);
     }
 
-    public void testTransportLevelException() throws ConnectionToRemoteDeviceException, IOException, JadbException {
     @Test
+    public void testTransportLevelException() {
         assertThrows(JadbException.class, () -> {
             // Prepare
             Transport transport = mock(Transport.class);
@@ -45,8 +45,8 @@ public class HostDisconnectFromRemoteTcpDeviceTest {
         });
     }
 
-    public void testProtocolException() throws ConnectionToRemoteDeviceException, IOException, JadbException {
     @Test
+    public void testProtocolException() {
         assertThrows(ConnectionToRemoteDeviceException.class, () -> {
             // Prepare
             Transport transport = mock(Transport.class);
@@ -63,17 +63,17 @@ public class HostDisconnectFromRemoteTcpDeviceTest {
     }
 
     @Test
-    public void testProtocolResponseValidatorSuccessfullyConnected() throws ConnectionToRemoteDeviceException, IOException, JadbException {
+    public void testProtocolResponseValidatorSuccessfullyConnected() throws IOException {
         new HostDisconnectFromRemoteTcpDevice.ResponseValidatorImp().validate("disconnected 127.0.0.1:10001");
     }
 
     @Test
-    public void testProtocolResponseValidatorAlreadyConnected() throws ConnectionToRemoteDeviceException, IOException, JadbException {
+    public void testProtocolResponseValidatorAlreadyConnected() throws IOException {
         new HostDisconnectFromRemoteTcpDevice.ResponseValidatorImp().validate("error: no such device '127.0.0.1:10001'");
     }
 
-    public void testProtocolResponseValidatorErrorInValidate() throws ConnectionToRemoteDeviceException, IOException, JadbException {
     @Test
+    public void testProtocolResponseValidatorErrorInValidate() {
         assertThrows(ConnectionToRemoteDeviceException.class, () -> {
             new HostDisconnectFromRemoteTcpDevice.ResponseValidatorImp().validate("some error occurred");
         });

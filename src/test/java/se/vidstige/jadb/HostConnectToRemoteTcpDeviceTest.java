@@ -37,8 +37,8 @@ public class HostConnectToRemoteTcpDeviceTest {
         assertEquals("host:connect:somehost:1", argument.getValue());
     }
 
-    public void testTransportLevelException() throws ConnectionToRemoteDeviceException, IOException, JadbException {
     @Test
+    public void testTransportLevelException() {
         assertThrows(JadbException.class, () -> {
             // Prepare
             Transport transport = mock(Transport.class);
@@ -56,8 +56,8 @@ public class HostConnectToRemoteTcpDeviceTest {
         });
     }
 
-    public void testProtocolException() throws ConnectionToRemoteDeviceException, IOException, JadbException {
     @Test
+    public void testProtocolException() {
         assertThrows(ConnectionToRemoteDeviceException.class, () -> {
             // Prepare
             Transport transport = mock(Transport.class);
@@ -79,17 +79,17 @@ public class HostConnectToRemoteTcpDeviceTest {
     }
 
     @Test
-    public void testProtocolResponseValidatorSuccessfullyConnected() throws ConnectionToRemoteDeviceException, IOException, JadbException {
+    public void testProtocolResponseValidatorSuccessfullyConnected() throws IOException {
        new HostConnectToRemoteTcpDevice.ResponseValidatorImp().validate("connected to somehost:1");
     }
 
     @Test
-    public void testProtocolResponseValidatorAlreadyConnected() throws ConnectionToRemoteDeviceException, IOException, JadbException {
+    public void testProtocolResponseValidatorAlreadyConnected() throws IOException {
         new HostConnectToRemoteTcpDevice.ResponseValidatorImp().validate("already connected to somehost:1");
     }
 
-    public void testProtocolResponseValidatorErrorInValidate() throws ConnectionToRemoteDeviceException, IOException, JadbException {
     @Test
+    public void testProtocolResponseValidatorErrorInValidate() {
         assertThrows(ConnectionToRemoteDeviceException.class, () -> {
             new HostConnectToRemoteTcpDevice.ResponseValidatorImp().validate("some error occurred");
         });

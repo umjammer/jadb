@@ -157,7 +157,7 @@ public class ShellProcessBuilder {
      * @throws IOException
      * @throws JadbException
      */
-    public ShellProcess start() throws IOException, JadbException {
+    public ShellProcess start() throws IOException {
         Transport transport = null;
         try {
             final OutputStream outOs = getOutputStream(this.outOs, this.outRedirect, System.out);
@@ -197,7 +197,7 @@ public class ShellProcessBuilder {
             }
 
             return new ShellProcess(inOs, outIs, errIs, transportTask, shellProtocolTransport);
-        } catch (IOException | JadbException | RuntimeException e) {
+        } catch (IOException | RuntimeException e) {
             if (transport != null) {
                 transport.close();
             }

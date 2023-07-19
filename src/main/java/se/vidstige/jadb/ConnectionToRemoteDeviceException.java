@@ -1,6 +1,9 @@
 package se.vidstige.jadb;
 
-public class ConnectionToRemoteDeviceException extends Exception {
+import java.io.IOException;
+
+
+public class ConnectionToRemoteDeviceException extends IOException {
     public ConnectionToRemoteDeviceException(String message) {
         super(message);
     }

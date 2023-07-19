@@ -141,7 +141,7 @@ public class FakeAdbServer implements AdbResponder {
         }
 
         @Override
-        public void filePulled(RemoteFile path, ByteArrayOutputStream buffer) throws JadbException, IOException {
+        public void filePulled(RemoteFile path, ByteArrayOutputStream buffer) throws IOException {
             for (FileExpectation fe : fileExpectations) {
                 if (fe.matches(path)) {
                     fileExpectations.remove(fe);

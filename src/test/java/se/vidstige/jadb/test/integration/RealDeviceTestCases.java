@@ -208,7 +208,7 @@ public class RealDeviceTestCases {
      * @throws ConnectionToRemoteDeviceException
      */
     @Test
-    public void testConnectionToTcpDevice() throws IOException, JadbException, ConnectionToRemoteDeviceException {
+    public void testConnectionToTcpDevice() throws IOException {
         jadb.connectToTcpDevice(new InetSocketAddress("127.0.0.1", 10001));
         List<JadbDevice> devices = jadb.getDevices();
 
@@ -224,7 +224,7 @@ public class RealDeviceTestCases {
      * @throws ConnectionToRemoteDeviceException
      */
     @Test
-    public void testDisconnectionToTcpDevice() throws IOException, JadbException, ConnectionToRemoteDeviceException {
+    public void testDisconnectionToTcpDevice() throws IOException {
         testConnectionToTcpDevice();
 
         jadb.disconnectFromTcpDevice(new InetSocketAddress("127.0.0.1", 10001));

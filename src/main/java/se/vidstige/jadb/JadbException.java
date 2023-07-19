@@ -1,6 +1,9 @@
 package se.vidstige.jadb;
 
-public class JadbException extends Exception {
+import java.io.IOException;
+
+
+public class JadbException extends IOException {
 
     public JadbException(String message) {
         super(message);

@@ -28,7 +28,7 @@ public class FakeSubprocess extends Subprocess {
     }
 
     @Override
-    public Process execute(String[] command) throws IOException {
+    public Process execute(String[] command) {
         List<Expectation> toRemove = new ArrayList<>();
         for (Expectation e : expectations) {
             if (e.matches(command)) {
