@@ -1,6 +1,10 @@
 package se.vidstige.jadb;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -35,7 +39,7 @@ public class SyncTransport {
         output.writeInt(Integer.reverseBytes(length));
     }
 
-    public void verifyStatus() throws IOException, JadbException {
+    public void verifyStatus() throws IOException {
         String status = readString(4);
         int length = readInt();
         if ("FAIL".equals(status)) {
@@ -72,7 +76,7 @@ public class SyncTransport {
         output.writeBytes("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"); // equivalent to the length of a "normal" dent
     }
 
-    public RemoteFileRecord readDirectoryEntry() throws IOException {
+    public RemoteFileRecord readDirectoryEntry(String path) throws IOException {
         String id = readString(4);
         int mode = readInt();
         int size = readInt();
@@ -90,7 +94,7 @@ public class SyncTransport {
         output.write(buffer, offset, length);
     }
 
-    private int readChunk(byte[] buffer) throws IOException, JadbException {
+    private int readChunk(byte[] buffer) throws IOException {
         String id = readString(4);
         int n = readInt();
         if ("FAIL".equals(id)) {
@@ -130,7 +134,7 @@ public class SyncTransport {
         };
     }
 
-    public void readChunksTo(OutputStream stream) throws IOException, JadbException {
+    public void readChunksTo(OutputStream stream) throws IOException {
         byte[] buffer = new byte[1024 * 64];
         int n = readChunk(buffer);
         while (n != -1) {
@@ -139,7 +143,7 @@ public class SyncTransport {
         }
     }
 
-    private int readChunk(Deque<Byte> deque) throws IOException, JadbException {
+    private int readChunk(Deque<Byte> deque) throws IOException {
         String id = readString(4);
         int n = readInt();
         if ("FAIL".equals(id)) {
@@ -160,15 +164,11 @@ logger.finest("readChunk: " + n + "/" + deque.size());
             Deque<Byte> deque = new LinkedList<>();
             boolean eof;
             void readInternal() throws IOException {
-                try {
                 if (!eof) {
                     int n = readChunk(deque);
                     if (n == -1) {
                         eof = true;
                     }
-                }
-                } catch (JadbException e) {
-                    throw new IOException(e);
                 }
             }
             @Override
