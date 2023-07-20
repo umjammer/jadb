@@ -3,13 +3,16 @@ package se.vidstige.jadb;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Deque;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.LinkedList;
+import java.util.logging.Logger;
 
 
 /**
  * Created by vidstige on 2014-03-19.
  */
 public class SyncTransport {
+
+    private static final Logger logger = Logger.getLogger(SyncTransport.class.getName());
 
     private final DataOutput output;
     private final DataInput input;
@@ -148,21 +151,22 @@ public class SyncTransport {
         for (int i = 0; i < n; i++) {
             deque.offer(buffer[i]);
         }
+logger.finest("readChunk: " + n + "/" + deque.size());
         return n;
     }
 
     public InputStream readChunks(Runnable onClose) {
         return new InputStream() {
-            Deque<Byte> deque = new ConcurrentLinkedDeque<>();
+            Deque<Byte> deque = new LinkedList<>();
             boolean eof;
             void readInternal() throws IOException {
                 try {
-                    if (!eof) {
-                        int n = readChunk(deque);
-                        if (n == -1) {
-                            eof = true;
-                        }
+                if (!eof) {
+                    int n = readChunk(deque);
+                    if (n == -1) {
+                        eof = true;
                     }
+                }
                 } catch (JadbException e) {
                     throw new IOException(e);
                 }
@@ -180,6 +184,7 @@ public class SyncTransport {
                     }
                     b[off + i] = deque.poll();
                 }
+logger.finest("read: " + i + "/" + deque.size());
                 return i;
             }
 
@@ -192,6 +197,7 @@ public class SyncTransport {
                 if (deque.peek() == null) {
                     return -1;
                 }
+logger.finest("read: 1/" + deque.size());
                 return deque.poll();
             }
 
