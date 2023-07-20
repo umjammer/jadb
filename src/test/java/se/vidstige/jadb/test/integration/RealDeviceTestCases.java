@@ -80,11 +80,11 @@ public class RealDeviceTestCases {
     public void testListFilesTwice() throws Exception {
         JadbDevice any = jadb.getAnyDevice();
         for (RemoteFile f : any.list("/")) {
-            System.out.println(f.getPath());
+            System.out.println(f.getName());
         }
 
         for (RemoteFile f : any.list("/")) {
-            System.out.println(f.getPath());
+            System.out.println(f.getName());
         }
     }
 

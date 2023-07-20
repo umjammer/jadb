@@ -227,7 +227,7 @@ public class MockedTestCases {
 
     private static void assertHasFile(String expPath, int expSize, long expModifyTime, List<RemoteFile> actualFiles) {
         for (RemoteFile file : actualFiles) {
-            if (expPath.equals(file.getPath())) {
+            if (expPath.equals(file.getName())) {
                 if (file.isDirectory()) {
                     fail("File " + expPath + " was listed as a dir!");
                 } else if (expSize != file.getSize() || expModifyTime != file.getLastModified()) {
@@ -242,7 +242,7 @@ public class MockedTestCases {
 
     private static void assertHasDir(String expPath, long expModifyTime, List<RemoteFile> actualFiles) {
         for (RemoteFile file : actualFiles) {
-            if (expPath.equals(file.getPath())) {
+            if (expPath.equals(file.getName())) {
                 if (!file.isDirectory()) {
                     fail("Dir " + expPath + " was listed as a file!");
                 } else if (expModifyTime != file.getLastModified()) {

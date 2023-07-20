@@ -81,7 +81,7 @@ public class SyncTransport {
         String name = readString(nameLength);
 
         if (!"DENT".equals(id)) return RemoteFileRecord.DONE;
-        return new RemoteFileRecord(name, mode, size, time);
+        return new RemoteFileRecord(path + (path.length() > 0 && path.charAt(path.length() - 1) == '/' ? "" : "/") + name, mode, size, time);
     }
 
     private void sendChunk(byte[] buffer, int offset, int length) throws IOException {
