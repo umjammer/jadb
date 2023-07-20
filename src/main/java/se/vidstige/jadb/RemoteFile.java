@@ -12,7 +12,10 @@ public class RemoteFile {
 
     public RemoteFile(String path) { this.path = path; }
 
-    public String getName() { throw new UnsupportedOperationException(); }
+    public String getName() {
+        return path.substring(path.lastIndexOf('/') + 1);
+    }
+
     public int getSize() { throw new UnsupportedOperationException(); }
     public int getLastModified() { throw new UnsupportedOperationException(); }
     public boolean isDirectory() { throw new UnsupportedOperationException(); }

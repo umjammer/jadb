@@ -6,8 +6,13 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+
 
 public class JadbDevice {
+
+    private static final Logger logger = Logger.getLogger(JadbDevice.class.getName());
+
     @SuppressWarnings("squid:S00115")
     public enum State {
         Unknown,
@@ -192,7 +197,7 @@ public class JadbDevice {
             sync.send("LIST", remotePath);
 
             List<RemoteFile> result = new ArrayList<>();
-            for (RemoteFileRecord dent = sync.readDirectoryEntry(); dent != RemoteFileRecord.DONE; dent = sync.readDirectoryEntry()) {
+            for (RemoteFileRecord dent = sync.readDirectoryEntry(remotePath); dent != RemoteFileRecord.DONE; dent = sync.readDirectoryEntry(remotePath)) {
                 result.add(dent);
             }
             return result;
@@ -252,6 +257,7 @@ public class JadbDevice {
     public InputStream pull(RemoteFile remote) throws IOException {
         Transport transport = getTransport();
         SyncTransport sync = transport.startSync();
+logger.finer("pull: " + remote.getPath());
         sync.send("RECV", remote.getPath());
 
         return sync.readChunks(() -> {

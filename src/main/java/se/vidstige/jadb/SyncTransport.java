@@ -1,15 +1,22 @@
 package se.vidstige.jadb;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Deque;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.LinkedList;
+import java.util.logging.Logger;
 
 
 /**
  * Created by vidstige on 2014-03-19.
  */
 public class SyncTransport {
+
+    private static final Logger logger = Logger.getLogger(SyncTransport.class.getName());
 
     private final DataOutput output;
     private final DataInput input;
@@ -32,7 +39,7 @@ public class SyncTransport {
         output.writeInt(Integer.reverseBytes(length));
     }
 
-    public void verifyStatus() throws IOException, JadbException {
+    public void verifyStatus() throws IOException {
         String status = readString(4);
         int length = readInt();
         if ("FAIL".equals(status)) {
@@ -69,7 +76,7 @@ public class SyncTransport {
         output.writeBytes("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"); // equivalent to the length of a "normal" dent
     }
 
-    public RemoteFileRecord readDirectoryEntry() throws IOException {
+    public RemoteFileRecord readDirectoryEntry(String path) throws IOException {
         String id = readString(4);
         int mode = readInt();
         int size = readInt();
@@ -78,7 +85,7 @@ public class SyncTransport {
         String name = readString(nameLength);
 
         if (!"DENT".equals(id)) return RemoteFileRecord.DONE;
-        return new RemoteFileRecord(name, mode, size, time);
+        return new RemoteFileRecord(path + (path.length() > 0 && path.charAt(path.length() - 1) == '/' ? "" : "/") + name, mode, size, time);
     }
 
     private void sendChunk(byte[] buffer, int offset, int length) throws IOException {
@@ -87,7 +94,7 @@ public class SyncTransport {
         output.write(buffer, offset, length);
     }
 
-    private int readChunk(byte[] buffer) throws IOException, JadbException {
+    private int readChunk(byte[] buffer) throws IOException {
         String id = readString(4);
         int n = readInt();
         if ("FAIL".equals(id)) {
@@ -127,7 +134,7 @@ public class SyncTransport {
         };
     }
 
-    public void readChunksTo(OutputStream stream) throws IOException, JadbException {
+    public void readChunksTo(OutputStream stream) throws IOException {
         byte[] buffer = new byte[1024 * 64];
         int n = readChunk(buffer);
         while (n != -1) {
@@ -136,7 +143,7 @@ public class SyncTransport {
         }
     }
 
-    private int readChunk(Deque<Byte> deque) throws IOException, JadbException {
+    private int readChunk(Deque<Byte> deque) throws IOException {
         String id = readString(4);
         int n = readInt();
         if ("FAIL".equals(id)) {
@@ -148,23 +155,20 @@ public class SyncTransport {
         for (int i = 0; i < n; i++) {
             deque.offer(buffer[i]);
         }
+logger.finest("readChunk: " + n + "/" + deque.size());
         return n;
     }
 
     public InputStream readChunks(Runnable onClose) {
         return new InputStream() {
-            Deque<Byte> deque = new ConcurrentLinkedDeque<>();
+            Deque<Byte> deque = new LinkedList<>();
             boolean eof;
             void readInternal() throws IOException {
-                try {
-                    if (!eof) {
-                        int n = readChunk(deque);
-                        if (n == -1) {
-                            eof = true;
-                        }
+                if (!eof) {
+                    int n = readChunk(deque);
+                    if (n == -1) {
+                        eof = true;
                     }
-                } catch (JadbException e) {
-                    throw new IOException(e);
                 }
             }
             @Override
@@ -180,6 +184,7 @@ public class SyncTransport {
                     }
                     b[off + i] = deque.poll();
                 }
+logger.finest("read: " + i + "/" + deque.size());
                 return i;
             }
 
@@ -192,6 +197,7 @@ public class SyncTransport {
                 if (deque.peek() == null) {
                     return -1;
                 }
+logger.finest("read: 1/" + deque.size());
                 return deque.poll();
             }
 
