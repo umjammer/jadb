@@ -6,7 +6,7 @@
 
   <groupId>se.vidstige</groupId>
   <artifactId>jadb</artifactId>
-  <version>1.2.2v-SNAPSHOT</version>
+  <version>1.2.2v</version>
 
   <url>https://github.com/umjammer/jadb</url>
   <licenses>
