@@ -1,7 +1,7 @@
 [![jitpack badge](https://jitpack.io/v/umjammer/jadb.svg)](https://jitpack.io/#umjammer/jadb)
 [![Java CI](https://github.com/umjammer/jadb/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/jadb/actions/workflows/maven.yml)
-[![CodeQL](https://github.com/umjammer/jadb/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/jadb/actions/workflows/codeql-analysis.yml)
-![Java](https://img.shields.io/badge/Java-8-b07219)
+[![CodeQL](https://github.com/umjammer/jadb/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/jadb/actions/workflows/codeql.yml)
+![Java](https://img.shields.io/badge/Java-17-b07219)
 [![Parent](https://img.shields.io/badge/Parent-vavi--nio--file--adb-pink)](https://github.com/umjammer/vavi-nio-file-adb)
 
 # JADB

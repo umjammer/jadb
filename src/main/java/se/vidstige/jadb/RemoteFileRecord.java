@@ -15,8 +15,12 @@ class RemoteFileRecord extends RemoteFile {
     private final int size;
     private final int lastModified;
 
-    public RemoteFileRecord(String name, int mode, int size, int lastModified) {
-        super(name);
+    /**
+     * @param mode see "Encoding of the file mode." in
+     *            <a href="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6/+/refs/heads/tools_r20/sysroot/usr/include/bits/stat.h">...</a>
+     */
+    public RemoteFileRecord(String path, int mode, int size, int lastModified) {
+        super(path);
         this.mode = mode;
         this.size = size;
         this.lastModified = lastModified;
@@ -33,8 +37,18 @@ class RemoteFileRecord extends RemoteFile {
     }
 
     @Override
+    public boolean isRegularFile() {
+        return (mode & 0100000) == 0100000;
+    }
+
+    @Override
     public boolean isDirectory() {
-        return (mode & (1 << 14)) == (1 << 14);
+        return (mode & 0040000) == 0040000;
+    }
+
+    @Override
+    public boolean isSymbolicLink() {
+        return (mode & 0120000) == 0120000;
     }
 
     @Override
