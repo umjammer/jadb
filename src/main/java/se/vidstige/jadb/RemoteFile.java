@@ -19,6 +19,10 @@ public class RemoteFile {
     public int getSize() { throw new UnsupportedOperationException(); }
     public int getLastModified() { throw new UnsupportedOperationException(); }
     public boolean isDirectory() { throw new UnsupportedOperationException(); }
+    public boolean isRegularFile() {
+        throw new UnsupportedOperationException();
+    }
+    public boolean isSymbolicLink() { throw new UnsupportedOperationException(); }
 
     public int getMode() { throw new UnsupportedOperationException(); }
 

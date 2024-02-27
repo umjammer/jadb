@@ -172,7 +172,7 @@ public class JadbDevice {
     /**
      * Enable tcpip on the default port (5555)
      *
-     * @return success or failure
+     * @exception IOException failure
      */
     public void enableAdbOverTCP() throws IOException {
         enableAdbOverTCP(DEFAULT_TCPIP_PORT);
@@ -183,7 +183,7 @@ public class JadbDevice {
      *
      * @param port for the device to bind on
      *
-     * @return success or failure
+     * @exception IOException failure
      */
     public void enableAdbOverTCP(int port) throws IOException {
         try (Transport transport = getTransport()) {
@@ -216,7 +216,7 @@ public class JadbDevice {
         }
     }
 
-    public void push(File local, RemoteFile remote) throws IOException, JadbException {
+    public void push(File local, RemoteFile remote) throws IOException {
         try (FileInputStream fileStream = new FileInputStream(local)) {
             push(fileStream, TimeUnit.MILLISECONDS.toSeconds(local.lastModified()), DEFAULT_MODE, remote);
         }
